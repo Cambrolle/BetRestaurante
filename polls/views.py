@@ -13,3 +13,6 @@ def base_page(request):
 
 def crear_page(request):
     return render(request, 'crear_cuenta.html')
+
+def iniciar_page(request):
+    return render(request, 'iniciar_sesion.html')
