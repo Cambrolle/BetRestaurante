@@ -10,3 +10,6 @@ def home_page(request):
     return render(request, 'inicio.html')
 def base_page(request):
     return render(request, 'base.html')
+
+def crear_page(request):
+    return render(request, 'crear_cuenta.html')

@@ -7,4 +7,5 @@ urlpatterns = [
     path('', home_page, name="home"),
     path('inicio/', home_page, name="home"),
     path('base/', base_page, name="base"),
+    path('crear_cuenta/', crear_page, name="crear"),
 ]
