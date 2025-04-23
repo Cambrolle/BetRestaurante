@@ -19,7 +19,8 @@ def base_page(request):
 
 def crear_page(request):
     return render(request, 'crear_cuenta.html')
-
+def gestion_page(request):
+    return render(request, 'gestion.html')
 def iniciar_page(request):
     return render(request, 'iniciar_sesion.html')
 def registrar_usuario(request):
