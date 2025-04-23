@@ -16,3 +16,6 @@ def crear_page(request):
 
 def iniciar_page(request):
     return render(request, 'iniciar_sesion.html')
+
+def gestion_page(request):
+    return render(request, 'gestion.html')
