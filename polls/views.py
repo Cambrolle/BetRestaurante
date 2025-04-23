@@ -22,7 +22,7 @@ def crear_page(request):
 def gestion_page(request):
     return render(request, 'gestion.html')
 def iniciar_page(request):
-    return render(request, 'iniciar_sesion.html')
+    return render(request, 'crear_cuenta.html')
 def registrar_usuario(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST)
@@ -34,3 +34,22 @@ def registrar_usuario(request):
         else:
             form = RegistroForm()
         return render(request, 'usuarios/crear_cuenta.html', {'form': form})
+def login_usuario(request):
+    if request.method == 'POST':
+        form = LoginForm(request, data=request.POST)
+        if form.is_valid():
+            email = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            usuario = authenticate(request, email=email, password=password)
+            if usuario is not None:
+                login(request, usuario)
+                return redirect('iniciar')
+            else:
+                form = LoginForm()
+            return render(request, 'usuarios/iniciar_sesion.html', {'form': form})
+
+def logout_usuario(request):
+    logout(request)
+    return redirect('iniciar')
+
+
