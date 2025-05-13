@@ -22,7 +22,7 @@ def crear_page(request):
 def gestion_page(request):
     return render(request, 'gestion.html')
 def iniciar_page(request):
-    return render(request, 'crear_cuenta.html')
+    return render(request, 'iniciar_sesion.html')
 def registrar_usuario(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST)
@@ -31,9 +31,11 @@ def registrar_usuario(request):
             usuario.set_password(form.cleaned_data['password'])
             usuario.save()
             return redirect('iniciar')
-        else:
-            form = RegistroForm()
-        return render(request, 'usuarios/crear_cuenta.html', {'form': form})
+    else:
+        form = RegistroForm()
+    return render(request, 'usuarios/crear_cuenta.html', {'form': form})
+
+
 def login_usuario(request):
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)

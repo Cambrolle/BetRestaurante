@@ -19,13 +19,20 @@
           <div class="offcanvas-body">
             <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
               <li class="nav-item">
+                <a class="nav-link" href="{% url 'home' %}">Inicio</a>
+              </li>
+                <li class="nav-item">
                 <a class="nav-link active" aria-current="page" href="#">Carta</a>
               </li>
-              <li class="nav-item">
+                <li class="nav-item">
                 <a class="nav-link" href="{% url 'iniciar' %}">Iniciar Sesión</a>
               </li>
                 <li class="nav-item">
                 <a class="nav-link" href="{% url 'crear' %}">Crear Cuenta</a>
+              </li>
+                </li>
+                <li class="nav-item">
+                <a class="nav-link" href="{% url 'gestionar' %}">Gestion</a>
               </li>
             </ul>
           </div>
@@ -36,4 +43,20 @@
         </div>
       </div>
     </nav>
+{% endblock %}
+{% block scripts %}
+<script>
+    const switchToggle = document.getElementById('switchCheckChecked');
+    const body = document.body;
+    const navbar = document.querySelector('.navbar');
+    if (localStorage.getItem('modo') === 'claro') {
+        body.classList.add('light-mode');
+        navbar.classList.add('light-mode');
+        switchToggle.checked = false;
+    }else {
+        body.classList.add('dark-mode');
+        navbar.classList.add('dark-mode');
+        switchToggle.checked = true;
+    }
+</script>
 {% endblock %}

@@ -9,5 +9,7 @@ class RegistroForm(forms.ModelForm):
         model = User
         fields = ['email', 'nombre', 'rol', 'password']
 
+
 class LoginForm(AuthenticationForm):
-    username = forms.EmailField(label="Correo")
+    username = forms.EmailField(label="Correo electrónico", widget=forms.EmailInput(attrs={'autofocus': True}))
+
