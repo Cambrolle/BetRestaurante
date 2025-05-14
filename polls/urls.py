@@ -1,14 +1,13 @@
 from django.urls import path
-
 from . import views
-from .views import *
 
 urlpatterns = [
-    path('', home_page, name="home"),
-    path('inicio/', home_page, name="home"),
-    path('base/', base_page, name="base"),
-    path('crear_cuenta/', crear_page, name="crear"),
-    path('iniciar_sesion/', iniciar_page, name="iniciar"),
-    path('pagina_gestion/', gestion_page, name="gestionar"),
-    path('pagina_mesas/', mesas_page, name="controlar_mesas"),
+    path('', views.home_page, name="home"),
+    path('inicio/', views.home_page, name="home"),
+    path('base/', views.base_page, name="base"),
+    path('crear_cuenta/', views.registrar_usuario, name="crear"),
+    path('iniciar_sesion/', views.login_usuario, name="iniciar"),
+    path('cerrar_sesion/', views.logout_usuario, name="logout"),
+    path('pagina_gestion/', views.gestion_page, name="gestionar"),
 ]
+
