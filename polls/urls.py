@@ -10,4 +10,5 @@ urlpatterns = [
     path('crear_cuenta/', crear_page, name="crear"),
     path('iniciar_sesion/', iniciar_page, name="iniciar"),
     path('pagina_gestion/', gestion_page, name="gestionar"),
+    path('pagina_mesas/', mesas_page, name="controlar_mesas"),
 ]

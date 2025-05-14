@@ -23,6 +23,8 @@ def gestion_page(request):
     return render(request, 'gestion.html')
 def iniciar_page(request):
     return render(request, 'iniciar_sesion.html')
+def mesas_page(request):
+    return render(request, 'mesas.html')
 def registrar_usuario(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST)
