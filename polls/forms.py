@@ -36,6 +36,7 @@ class RegistroForm(forms.ModelForm):
                 'placeholder': 'Tu nombre completo',
                 'required': 'required'
             }),
+
         }
         labels = {
             'email': 'Correo Electrónico',

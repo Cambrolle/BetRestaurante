@@ -27,7 +27,7 @@
                 <a class="nav-link" href="{% url 'home' %}">Inicio</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="#">Carta</a>
+                <a class="nav-link active" aria-current="page" href="{% static 'docs/LLUVIA_DE_IDEAS.pdf' %}">Carta</a>
               </li>
               {% if user.is_authenticated %}
                 <li class="nav-item">

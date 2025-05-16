@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% include 'navbarra.html' %}
 {% load static %}
 
 {% block title %}Crear Cuenta{% endblock %}
@@ -8,9 +7,9 @@
 <style>
     .auth-container {
         position: relative;
-        z-index: 1;
+        
     }
-    
+
     .auth-container::before {
         content: "";
         position: fixed;
@@ -25,7 +24,7 @@
         filter: blur(5px);
         z-index: -1;
     }
-    
+
     .auth-card {
         border-radius: 20px;
         background-color: rgba(0, 0, 0, 0.8);
@@ -33,25 +32,25 @@
         color: white;
         box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
     }
-    
+
     .auth-card .form-control {
         background-color: rgba(255, 255, 255, 0.1);
         color: white;
         border: 1px solid rgba(255, 255, 255, 0.2);
     }
-    
+
     .auth-card .form-control:focus {
         background-color: rgba(255, 255, 255, 0.2);
         color: white;
         border-color: #dc3545;
         box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
     }
-    
+
     .auth-card .btn-primary {
         background-color: #dc3545;
         border-color: #dc3545;
     }
-    
+
     .auth-card .btn-primary:hover {
         background-color: #bb2d3b;
         border-color: #b02a37;
@@ -62,7 +61,7 @@
     <div class="d-flex justify-content-center align-items-center vh-100">
         <div class="auth-card p-4" style="width: 100%; max-width: 400px;">
             <h3 class="text-center mb-4 text-white">Crear Cuenta</h3>
-            
+
             {% if messages %}
                 {% for message in messages %}
                     <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
@@ -71,10 +70,10 @@
                     </div>
                 {% endfor %}
             {% endif %}
-            
+
             <form method="post">
                 {% csrf_token %}
-                
+
                 {% for field in form %}
                     <div class="mb-3">
                         <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
@@ -84,7 +83,7 @@
                         {% endif %}
                     </div>
                 {% endfor %}
-                
+
                 <div class="d-grid gap-2">
                     <button type="submit" class="btn btn-primary py-2">Registrarse</button>
                     <a href="{% url 'iniciar' %}" class="btn btn-outline-light mt-2">¿Ya tienes cuenta? Inicia Sesión</a>
