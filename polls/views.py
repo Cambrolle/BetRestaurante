@@ -1,9 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .forms import RegistroForm, LoginForm
-from .models import User
+from .models import User, Mesa
 
 
 def index(request):
@@ -24,6 +24,23 @@ def gestion_page(request):
 
 def iniciar_page(request):
     return render(request, 'iniciar_sesion.html')
+
+
+def mesas_page(request):
+    mesas = Mesa.objects.all().order_by('codigo')
+    return render(request, 'mesas.html', {'mesas': mesas})
+
+
+def cambiar_estado_mesa(request, mesa_id):
+    mesa = get_object_or_404(Mesa, id=mesa_id)
+
+    if request.method == 'POST':
+        if mesa.disponibilidad == 'DISPONIBLE':
+            mesa.disponibilidad = 'OCUPADO'
+        else:
+            mesa.disponibilidad = 'DISPONIBLE'
+        mesa.save()
+    return redirect('mesas')
 
 
 def registrar_usuario(request):
@@ -68,5 +85,6 @@ def logout_usuario(request):
     logout(request)
     messages.success(request, "Has cerrado sesión correctamente.")
     return redirect('iniciar')
+
 
 
