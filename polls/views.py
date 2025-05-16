@@ -25,6 +25,12 @@ def gestion_page(request):
 def iniciar_page(request):
     return render(request, 'iniciar_sesion.html')
 
+def camarero_page(request):
+    return render(request, 'camarero.html')
+
+def carta_page(request):
+    return render(request, 'carta.html')
+
 
 def registrar_usuario(request):
     if request.method == 'POST':
