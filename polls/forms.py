@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
-from .models import User
+from .models import User, Producto
+
 
 class RegistroForm(forms.ModelForm):
     password = forms.CharField(
@@ -84,3 +85,8 @@ class LoginForm(AuthenticationForm):
         'invalid_login': "Correo electrónico o contraseña incorrectos.",
         'inactive': "Esta cuenta está inactiva.",
     }
+
+class ProductoForm(forms.ModelForm):
+    class Meta:
+        model = Producto
+        fields = ['tipo', 'producto', 'descripcion', 'imagen', 'precio']
