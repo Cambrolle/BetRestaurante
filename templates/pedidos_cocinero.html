@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Pedidos Pendientes</h2>
+    {% for pedido in pedidos %}
+    <div class="card mb-4">
+        <div class="card-header">
+            Pedido {{ pedido.codigo }} - Mesa {{ pedido.mesa.codigo }}
+        </div>
+        <div class="card-body">
+            <ul>
+                {% for item in pedido.pedidomesas_set.all %}
+                <li>{{ item.producto.producto }} x{{ item.cantidad }} - {{ item.estado_producto }}</li>
+                {% endfor %}
+            </ul>
+            <form method="post" action="{% url 'marcar_pedido_preparado' pedido.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success">Marcar como Preparado</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
