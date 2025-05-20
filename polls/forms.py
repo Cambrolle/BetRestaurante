@@ -90,3 +90,66 @@ class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
         fields = ['tipo', 'producto', 'descripcion', 'imagen', 'precio']
+
+class RegistroAdmin(forms.ModelForm):
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ingresa tu contraseña',
+            'required': 'required'
+        }),
+        label="Contraseña",
+        strip=False,
+    )
+    confirm_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Confirma tu contraseña',
+            'required': 'required'
+        }),
+        label="Confirmar Contraseña",
+        strip=False,
+    )
+
+    class Meta:
+        model = User
+        fields = ['email', 'nombre', 'rol']
+        widgets = {
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'ejemplo@correo.com',
+                'required': 'required'
+            }),
+            'nombre': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Tu nombre completo',
+                'required': 'required'
+            }),
+            'rol': forms.Select(attrs={
+                'class': 'form-select',
+                'placeholder': 'Tu rol',
+                'required': 'required'
+            })
+
+        }
+        labels = {
+            'email': 'Correo Electrónico',
+            'nombre': 'Nombre Completo',
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if password and confirm_password and password != confirm_password:
+            raise forms.ValidationError("Las contraseñas no coinciden.")
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password"])
+        if commit:
+            user.save()
+        return user
