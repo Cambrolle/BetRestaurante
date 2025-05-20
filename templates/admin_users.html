@@ -1,11 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
-{% include 'base.html' %}
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    
-</body>
-</html>
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4 text-white">Añadir nuevo empleado</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="row g-3">
+            <div class="col-md-6">
+                {{ form.nombre.label_tag }} {{ form.nombre }}
+            </div>
+            <div class="col-md-6">
+                {{ form.email.label_tag }} {{ form.email }}
+            </div>
+            <div class="col-md-6">
+                {{ form.rol.label_tag }} {{ form.rol }}
+            </div>
+            <div class="col-md-6">
+                {{ form.password.label_tag }} {{ form.password }}
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-danger mt-2">Añadir empleado</button>
+            </div>
+        </div>
+    </form>
+
+    <hr class="my-5 text-white">
+    <h2 class="text-white">Empleados actuales</h2>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for e in empleados %}
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ e.nombre }}</h5>
+                    <p class="card-text">Email: {{ e.email }}</p>
+                </div>
+                <div class="card-footer d-flex flex-column gap-2">
+                    <span class="badge bg-info text-dark">{{ e.rol|capfirst }}</span>
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'editar_empleado' e.id %}" class="btn btn-sm btn-warning">Editar</a>
+                        <a href="{% url 'eliminar_empleado' e.id %}" class="btn btn-sm btn-danger"
+                           onclick="return confirm('¿Estás seguro de que deseas eliminar este empleado?');">
+                           Eliminar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+            <p class="text-white">No hay empleados registrados aún.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

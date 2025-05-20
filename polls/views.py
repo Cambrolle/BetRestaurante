@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .forms import RegistroForm, LoginForm, ProductoForm
+from .forms import RegistroForm, LoginForm, ProductoForm, EmpleadoForm
 from .models import User, Mesa, Producto
 
 
@@ -39,8 +39,6 @@ def administrador_page(request):
 def mesas_page(request):
     mesas = Mesa.objects.all().order_by('codigo')
     return render(request, 'mesas.html', {'mesas': mesas})
-def users_page(request):
-    return render(request, 'admin_users.html')
 def carta_view(request):
     productos = Producto.objects.all().order_by('id')
 
@@ -156,6 +154,47 @@ def login_usuario(request):
         'title': 'Iniciar Sesión'
     })
 
+
+def empleados_view(request):
+    empleados = User.objects.filter(rol__in=['camarero', 'cocinero']).order_by('nombre')
+
+    if request.method == 'POST':
+        form = EmpleadoForm(request.POST)
+        if form.is_valid():
+            nuevo_empleado = form.save(commit=False)
+            nuevo_empleado.set_password(form.cleaned_data['password'])  # Encriptar contraseña
+            nuevo_empleado.save()
+            return redirect('empleados')
+    else:
+        form = EmpleadoForm()
+
+    return render(request, 'admin_users.html', {'form': form, 'empleados': empleados})
+
+def editar_empleado(request, id):
+    empleado = get_object_or_404(User, id=id)
+
+    if request.method == 'POST':
+        form = EmpleadoForm(request.POST, instance=empleado)
+        if form.is_valid():
+            empleado = form.save(commit=False)
+            if form.cleaned_data['password']:
+                empleado.set_password(form.cleaned_data['password'])
+            empleado.save()
+            return redirect('empleados')
+    else:
+        form = EmpleadoForm(instance=empleado)
+        form.fields['password'].initial = ''
+
+    return render(request, 'editar_empleado.html', {'form': form})
+
+def eliminar_empleado(request, id):
+    empleado = get_object_or_404(User, id=id)
+
+    if request.method == 'POST':
+        empleado.delete()
+        return redirect('empleados')
+
+    return render(request, 'confirmar_eliminar_empleado.html', {'empleado': empleado})
 
 
 

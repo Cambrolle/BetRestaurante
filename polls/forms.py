@@ -91,25 +91,15 @@ class ProductoForm(forms.ModelForm):
         model = Producto
         fields = ['tipo', 'producto', 'descripcion', 'imagen', 'precio']
 
-class RegistroAdmin(forms.ModelForm):
-    password = forms.CharField(
-        widget=forms.PasswordInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Ingresa tu contraseña',
-            'required': 'required'
-        }),
-        label="Contraseña",
-        strip=False,
-    )
-    confirm_password = forms.CharField(
-        widget=forms.PasswordInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Confirma tu contraseña',
-            'required': 'required'
-        }),
-        label="Confirmar Contraseña",
-        strip=False,
-    )
+class EmpleadoForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput, label='Contraseña')
+
+    class Meta:
+        model = User
+        fields = ['nombre', 'email', 'rol', 'password']
+        widgets = {
+            'rol': forms.Select(choices=[('camarero', 'Camarero'), ('cocinero', 'Cocinero')]),
+        }
 
     class Meta:
         model = User

@@ -15,10 +15,12 @@ urlpatterns = [
     path('admin/', views.administrador_page, name="admin_page"),
     path('mesas/cambiar_estado/<int:mesa_id>/', views.cambiar_estado_mesa, name="cambiar_estado_mesa"),
     path('mesas/', views.mesas_page, name="mesas"),
-    path('users/', views.users_page, name="users"),
     path('carta/', views.carta_view, name='carta'),
     path('producto/editar/<int:id>/', views.editar_producto, name='editar_producto'),
     path('producto/eliminar/<int:id>/', views.eliminar_producto, name='eliminar_producto'),
+    path('empleados/', views.empleados_view, name='empleados'),
+    path('empleados/editar/<int:id>/', views.editar_empleado, name='editar_empleado'),
+    path('empleados/eliminar/<int:id>/', views.eliminar_empleado, name='eliminar_empleado'),
 
 ]
 
