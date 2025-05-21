@@ -56,7 +56,7 @@
         <tbody>
             {% for item in items %}
             <tr>
-                <td>{{ item.producto.producto }}</td>
+                <td>{{ item.producto }}</td>
                 <td>{{ item.cantidad }}</td>
                 <td>{{ item.precio_unitario }} €</td>
                 <td>{{ item.subtotal }} €</td>
@@ -91,8 +91,9 @@
     </table>
     <p><strong>Total: {{ total }} €</strong></p>
 
-    <form method="post" action="{% url 'procesar_pedido' %}">
+    <form method="post" action="{% url 'enviar_pedido' %}">
         {% csrf_token %}
+        <input type="hidden" name="mesa_id" value="{{ mesa_id }}">
         <button type="submit" class="btn btn-success">Procesar Pedido</button>
     </form>
     {% else %}
@@ -100,4 +101,5 @@
     {% endif %}
 </div>
 {% endblock %}
+
 

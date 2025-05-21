@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <h2>Pedido procesado con éxito</h2>
+    <p>Gracias por tu pedido. En breve estará listo.</p>
+    <a href="{% url 'vista_carta_camarero' %}" class="btn btn-primary">Volver a la carta</a>
+</div>
+{% endblock %}

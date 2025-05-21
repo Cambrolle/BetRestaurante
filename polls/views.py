@@ -3,14 +3,15 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.template.defaultfilters import time
+import time
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from .forms import RegistroForm, LoginForm, ProductoForm, EmpleadoForm
-from .models import User, Mesa, Producto, Carrito, ItemCarrito
+from .models import User, Mesa, Producto, Carrito, ItemCarrito, PedidoItem
 
-from .models import Pedido, PedidoMesas
+from .models import Pedido
+
 
 
 def index(request):
@@ -40,12 +41,26 @@ def carta_page(request):
 def camarero_page(request):
     return render(request, 'camarero.html')
 
+def cocinero_page(request):
+    return render(request, 'cocinero.html')
+
 def administrador_page(request):
     return render(request, 'administrar.html')
 
 def mesas_page(request):
     mesas = Mesa.objects.all().order_by('codigo')
     return render(request, 'mesas.html', {'mesas': mesas})
+
+def confirmacion_pedido(request):
+    return render(request, 'confirmacion_pedido.html')
+from django.shortcuts import render
+
+def vista_pedidos_cocinero(request):
+    pedidos = Pedido.objects.filter(estado='PENDIENTE').order_by('fecha_creacion')
+    return render(request, 'pedidos_cocinero.html', {'pedidos': pedidos})
+
+
+
 def carta_view(request):
     productos = Producto.objects.all().order_by('id')
 
@@ -133,6 +148,8 @@ def login_usuario(request):
                     return redirect('admin_page')
                 elif usuario.rol == 'cliente':
                     return redirect('home')
+                elif usuario.rol == 'cocinero':
+                    return redirect('cocinero')
                 else:
                     return redirect('home')  # Fallback
 
@@ -215,13 +232,14 @@ def vista_carta_camarero(request):
     items = []
     total = 0
 
-    if carrito and str(mesa_id) == str(carrito.get('mesa_id')):
-        for producto_id, item in carrito.get('items', {}).items():
+    # Aseguramos que carrito tenga 'items' y que la mesa coincida
+    if carrito and str(mesa_id) == str(carrito.get('mesa_id')) and 'items' in carrito:
+        for item in carrito['items']:
             subtotal = item['precio'] * item['cantidad']
             total += subtotal
             items.append({
-                'producto_id': producto_id,
-                'producto': {'producto': item['producto']},
+                'producto_id': item['id'],
+                'producto': {'producto': item['nombre']},  # Aquí nombre del producto
                 'cantidad': item['cantidad'],
                 'precio_unitario': item['precio'],
                 'subtotal': subtotal,
@@ -240,44 +258,39 @@ def vista_carta_camarero(request):
 
 
 
+
 @require_POST
 @login_required
 def agregar_al_carrito(request, producto_id):
-    mesa_id = request.POST.get('mesa_id')
-    if not mesa_id:
-        messages.error(request, "Debe seleccionar una mesa antes de añadir productos.")
-        return redirect('vista_carta_camarero')
+    producto = get_object_or_404(Producto, pk=producto_id)
 
-    producto = get_object_or_404(Producto, id=producto_id)
+    # Inicializa el carrito si no existe en la sesión
+    if 'carrito' not in request.session:
+        request.session['carrito'] = {'items': []}
 
-    carrito = request.session.get('carrito', None)
+    carrito = request.session['carrito']
+    items = carrito.get('items', [])
 
-    if carrito is None or str(mesa_id) != str(carrito.get('mesa_id')):
-        # Crear nuevo carrito para esta mesa
-        carrito = {
-            'mesa_id': mesa_id,
-            'items': {}
-        }
-
-    items = carrito['items']
-
-    prod_id_str = str(producto_id)
-
-    if prod_id_str in items:
-        items[prod_id_str]['cantidad'] += 1
+    # Verifica si el producto ya está en el carrito
+    for item in items:
+        if item['id'] == producto.id:
+            item['cantidad'] += 1
+            break
     else:
-        items[prod_id_str] = {
-            'producto': producto.producto,
+        # Si no está, lo agregamos
+        items.append({
+            'id': producto.id,
+            'nombre': producto.producto,  # <-- campo correcto
             'precio': float(producto.precio),
-            'cantidad': 1
-        }
+            'cantidad': 1,
+        })
 
+    # Guarda los cambios
+    carrito['items'] = items
     request.session['carrito'] = carrito
     request.session.modified = True
 
-    messages.success(request, f"{producto.producto} añadido al carrito.")
-
-    return redirect(f'{request.META.get("HTTP_REFERER")}')
+    return redirect('vista_carta_camarero')  # Cambia esto si tu vista tiene otro nombre
 
 @login_required
 def procesar_pedido(request):
@@ -290,7 +303,7 @@ def procesar_pedido(request):
             cocinero=None
         )
         for item in carrito.items.all():
-            PedidoMesas.objects.create(
+            Pedido.objects.create(
                 pedido=pedido,
                 producto=item.producto,
                 cantidad=item.cantidad,
@@ -345,46 +358,56 @@ def eliminar_item_carrito(request, producto_id):
         messages.error(request, "Producto no encontrado en el carrito.")
 
     return redirect('ver_carrito')
-@login_required
+
+
 def enviar_pedido(request):
-    carrito = request.session.get('carrito')
-    if not carrito:
-        messages.error(request, "No hay pedido para enviar.")
-        return redirect('vista_carta_camarero')
+    if request.method == 'POST':
+        mesa_id = request.POST.get('mesa_id')
+        if not mesa_id:
+            return redirect('carta_camarero')
 
-    mesa_id = carrito.get('mesa_id')
-    items = carrito.get('items')
+        try:
+            mesa = Mesa.objects.get(id=int(mesa_id))
+        except Mesa.DoesNotExist:
+            return redirect('carta_camarero')
 
-    if not mesa_id or not items:
-        messages.error(request, "Pedido incompleto.")
-        return redirect('vista_carta_camarero')
+        carrito = request.session.get('carrito', {})
+        if not carrito or 'items' not in carrito:
+            return redirect('carta_camarero')
 
-    # Crear pedido
-    pedido = Pedido.objects.create(
-        codigo=f"PED-{mesa_id}-{int(time.time())}",
-        cliente=request.user,
-        estado='NOPREPARADO',
-        pagado=False
-    )
-
-
-    for prod_id_str, item in items.items():
-        prod_id = int(prod_id_str)
-        producto = Producto.objects.get(id=prod_id)
-        PedidoMesas.objects.create(
-            pedido=pedido,
-            producto=producto,
-            cantidad=item['cantidad'],
-            precio=float(item['precio']),
-            estado_producto='PENDIENTE',
+        # Crear un solo Pedido para esa mesa
+        pedido = Pedido.objects.create(
+            mesa=mesa,
+            estado='PENDIENTE'
         )
 
-    # Limpia carrito de sesión
-    del request.session['carrito']
-    request.session.modified = True
+        # Guardar todos los productos del carrito como PedidoItem relacionados al Pedido
+        for item in carrito['items']:
+            producto_id = item.get('id')
+            cantidad = item.get('cantidad', 1)
+            precio_unitario = item.get('precio', 0)
+            try:
+                producto = Producto.objects.get(id=producto_id)
+            except Producto.DoesNotExist:
+                continue
 
-    messages.success(request, "Pedido enviado al cocinero correctamente.")
-    return redirect('vista_carta_camarero')
+            PedidoItem.objects.create(
+                pedido=pedido,
+                producto=producto,
+                cantidad=cantidad,
+                precio_unitario=precio_unitario
+            )
+
+        # Limpiar carrito
+        if 'carrito' in request.session:
+            del request.session['carrito']
+
+        return redirect('confirmacion_pedido')
+
+    return redirect('carta_camarero')
+
+
+
 @login_required
 def vista_pedidos_cocinero(request):
     pedidos = Pedido.objects.filter(cocinero=None)
@@ -394,42 +417,49 @@ def vista_pedidos_cocinero(request):
 @login_required
 def marcar_pedido_preparado(request, pedido_id):
     pedido = get_object_or_404(Pedido, id=pedido_id)
-    pedido.estado = 'PREPARADO'
+    pedido.estado = 'PREPARANDO'  # O 'LISTO' según lo que quieras
     pedido.cocinero = request.user
     pedido.save()
-    return redirect('vista_pedidos_cocinero')
+    return redirect('pedidos')
 @require_POST
 def modificar_carrito(request):
-    producto_id = str(request.POST.get("producto_id"))
+    producto_id = int(request.POST.get("producto_id"))
     accion = request.POST.get("accion")
     mesa_id = request.session.get("carrito", {}).get("mesa_id")
 
     carrito = request.session.get("carrito", {})
 
-    if "items" not in carrito:
-        carrito["items"] = {}
+    # Si no hay items, inicializar lista vacía
+    if "items" not in carrito or not isinstance(carrito["items"], list):
+        carrito["items"] = []
 
     items = carrito["items"]
 
-    if producto_id not in items:
-        messages.error(request, "El producto no está en el carrito.")
-        return redirect(f"{request.META.get('HTTP_REFERER', '/')}")
+    # Buscar el item en la lista por id
+    item_encontrado = None
+    for item in items:
+        if item['id'] == producto_id:
+            item_encontrado = item
+            break
 
+    if not item_encontrado:
+        messages.error(request, "El producto no está en el carrito.")
+        return redirect(request.META.get('HTTP_REFERER', '/'))
 
     if accion == "incrementar":
-        items[producto_id]["cantidad"] += 1
+        item_encontrado["cantidad"] += 1
         messages.success(request, "Cantidad incrementada.")
 
     elif accion == "disminuir":
-        if items[producto_id]["cantidad"] > 1:
-            items[producto_id]["cantidad"] -= 1
+        if item_encontrado["cantidad"] > 1:
+            item_encontrado["cantidad"] -= 1
             messages.success(request, "Cantidad disminuida.")
         else:
-            items.pop(producto_id)
+            items.remove(item_encontrado)
             messages.success(request, "Producto eliminado del carrito.")
 
     elif accion == "eliminar":
-        items.pop(producto_id)
+        items.remove(item_encontrado)
         messages.success(request, "Producto eliminado del carrito.")
 
     # Guardar cambios en sesión
@@ -441,7 +471,10 @@ def modificar_carrito(request):
     if mesa_id:
         return redirect(f"/carta_camarero/?mesa_id={mesa_id}")
     else:
-        return redirect("vista_carta_camarero")  # Por si acaso
+        return redirect("vista_carta_camarero")
+
+
+
 
 
 

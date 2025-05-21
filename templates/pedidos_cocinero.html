@@ -6,12 +6,12 @@
     {% for pedido in pedidos %}
     <div class="card mb-4">
         <div class="card-header">
-            Pedido {{ pedido.codigo }} - Mesa {{ pedido.mesa.codigo }}
+            Pedido {{ pedido.id }} - Mesa {{ pedido.mesa.codigo }}
         </div>
         <div class="card-body">
             <ul>
-                {% for item in pedido.pedidomesas_set.all %}
-                <li>{{ item.producto.producto }} x{{ item.cantidad }} - {{ item.estado_producto }}</li>
+                {% for item in pedido.items.all %}
+                <li>{{ item.producto.producto }} x{{ item.cantidad }} - {{ pedido.estado }}</li>
                 {% endfor %}
             </ul>
             <form method="post" action="{% url 'marcar_pedido_preparado' pedido.id %}">
@@ -20,6 +20,13 @@
             </form>
         </div>
     </div>
+    {% empty %}
+    <p>No hay pedidos pendientes.</p>
     {% endfor %}
 </div>
 {% endblock %}
+
+
+
+
+
