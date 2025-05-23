@@ -1,10 +1,97 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Gestión de Mesas</h2>
+
+    <button onclick="agregarMesa()" class="btn btn-primary mb-4">Agregar Mesa</button>
+
+    <div id="lista-mesas" class="d-flex flex-wrap">
+        {% for mesa in mesas %}
+        <div class="mesa-redonda" id="mesa-{{ mesa.id }}">
+            <span>{{ mesa.codigo }}</span>
+            <small>{{ mesa.disponibilidad }}</small>
+            <button class="btn btn-danger btn-sm boton-eliminar" onclick="eliminarMesa({{ mesa.id }})">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.mesa-redonda {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: #e3f2fd;
+    color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    position: relative;
+    margin: 10px;
+    flex-direction: column;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+.mesa-redonda:hover {
+    transform: scale(1.05);
+}
+.boton-eliminar {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-size: 0.8rem;
+    padding: 2px 6px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .mesa-redonda {
+        background-color: #333c4d;
+        color: #fff;
+        box-shadow: 0 0 8px rgba(255,255,255,0.1);
+    }
+}
+</style>
+
+
+<script>
+function agregarMesa() {
+    fetch("{% url 'agregar_mesa' %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const lista = document.getElementById('lista-mesas');
+        const nueva = document.createElement('div');
+        nueva.className = 'mesa-redonda';
+        nueva.id = 'mesa-' + data.id;
+        nueva.innerHTML = `
+            <span>${data.codigo}</span>
+            <small>${data.disponibilidad}</small>
+            <button class="btn btn-danger btn-sm boton-eliminar" onclick="eliminarMesa(${data.id})">&times;</button>
+        `;
+        lista.appendChild(nueva);
+    });
+}
+
+function eliminarMesa(id) {
+    fetch("{% url 'eliminar_mesa' 0 %}".replace('0', id), {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            const mesa = document.getElementById('mesa-' + id);
+            mesa.remove();
+        }
+    });
+}
+</script>
+{% endblock %}

@@ -1,92 +1,91 @@
 {% load static %}
 
-
-
 {% block header %}
-    <nav class="navbar bg-black">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#" style="font-size: xxx-large; color: red; font-family: 'Arial Black'">
-          <img src="{% static 'img/unnamed-removebg-preview.png' %}" alt="Logo" width="70" height="74" class="d-inline-block align-text-top">
-          Bet Smash Burguer
-        </a>
-        <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="switchCheckChecked" checked>
-              <label class="form-check-label" for="switchCheckChecked">Modo Claro / Modo Oscuro</label>
-        </div>
-        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation" style="background-color: red">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
-          <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-          </div>
-          <div class="offcanvas-body">
-            <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'home' %}">Inicio</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="{% static 'docs/LLUVIA_DE_IDEAS.pdf' %}">Carta</a>
-              </li>
-              {% if user.is_authenticated %}
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'gestionar' %}">Gestion</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link text-danger" href="{% url 'logout' %}">Cerrar Sesión</a>
-                </li>
-              {% else %}
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'iniciar' %}">Iniciar Sesión</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'crear' %}">Crear Cuenta</a>
-                </li>
-              {% endif %}
-            </ul>
-          </div>
-        </div>
+<nav class="navbar bg-black">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#" style="font-size: xxx-large; color: red; font-family: 'Arial Black'">
+      <img src="{% static 'img/unnamed-removebg-preview.png' %}" alt="Logo" width="70" height="74" class="d-inline-block align-text-top">
+      Bet Smash Burguer
+    </a>
+    <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" role="switch" id="switchCheckChecked" checked>
+      <label class="form-check-label" for="switchCheckChecked">Modo Claro / Modo Oscuro</label>
+    </div>
+    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation" style="background-color: red">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
-    </nav>
+      <div class="offcanvas-body">
+        <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'home' %}">Inicio</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% static 'docs/Carta Bet Smash Burguer.pdf' %}">Carta</a>
+          </li>
 
-    <style>
-        body{
-            padding-top: 0px;
+          {% if user.is_authenticated %}
+            {% if user.rol == 'cliente' %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'historial_pedidos' %}">Mi historial</a>
+              </li>
+            {% endif %}
+            <li class="nav-item">
+              <a class="nav-link text-danger" href="{% url 'logout' %}">Cerrar Sesión</a>
+            </li>
+          {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'iniciar' %}">Iniciar Sesión</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'crear' %}">Crear Cuenta</a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<style>
+    body{
+        padding-top: 0px;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const switchToggle = document.getElementById('switchCheckChecked');
+        const body = document.body;
+        const navbar = document.querySelector('.navbar');
+
+        const savedMode = localStorage.getItem('modo');
+        if (savedMode === 'claro') {
+            body.classList.add('light-mode');
+            navbar.classList.add('light-mode');
+            switchToggle.checked = false;
+        } else {
+            body.classList.add('dark-mode');
+            navbar.classList.add('dark-mode');
+            switchToggle.checked = true;
         }
-    </style>
 
-    <script>
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            const switchToggle = document.getElementById('switchCheckChecked');
-            const body = document.body;
-            const navbar = document.querySelector('.navbar');
-
-            
-            const savedMode = localStorage.getItem('modo');
-            if (savedMode === 'claro') {
-                body.classList.add('light-mode');
-                navbar.classList.add('light-mode');
-                switchToggle.checked = false;
+        switchToggle.addEventListener('change', function() {
+            if (this.checked) {
+                localStorage.setItem('modo', 'oscuro');
+                body.classList.replace('light-mode', 'dark-mode');
+                navbar.classList.replace('light-mode', 'dark-mode');
             } else {
-                body.classList.add('dark-mode');
-                navbar.classList.add('dark-mode');
-                switchToggle.checked = true;
+                localStorage.setItem('modo', 'claro');
+                body.classList.replace('dark-mode', 'light-mode');
+                navbar.classList.replace('dark-mode', 'light-mode');
             }
-
-            
-            switchToggle.addEventListener('change', function() {
-                if (this.checked) {
-                    localStorage.setItem('modo', 'oscuro');
-                    body.classList.replace('light-mode', 'dark-mode');
-                    navbar.classList.replace('light-mode', 'dark-mode');
-                } else {
-                    localStorage.setItem('modo', 'claro');
-                    body.classList.replace('dark-mode', 'light-mode');
-                    navbar.classList.replace('dark-mode', 'light-mode');
-                }
-            });
         });
-    </script>
+    });
+</script>
 {% endblock %}
+

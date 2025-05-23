@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <h2>Historial de Pedidos</h2>
+
+    {% if pedidos_con_items %}
+        {% for entry in pedidos_con_items %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <strong>Pedido #{{ entry.pedido.id }}</strong>
+                    - {{ entry.pedido.fecha_creacion|date:"d/m/Y H:i" }}
+                    - Estado: {{ entry.pedido.estado }}
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for item in entry.items %}
+                        <li class="list-group-item">
+                            {{ item.producto.producto }} - Cantidad: {{ item.cantidad }} - Precio: {{ item.precio_unitario }} €
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No tienes pedidos realizados.</p>
+    {% endif %}
+</div>
+{% endblock %}

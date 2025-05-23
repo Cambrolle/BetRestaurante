@@ -4,7 +4,14 @@
 <div class="container my-5">
     <h2 class="mb-4">Carta</h2>
 
-    <!-- Formulario para seleccionar mesa -->
+    <!-- Botón para ver pedidos realizados -->
+    <div class="mb-3">
+        <a href="{% url 'ver_pedidos_realizados' %}" class="btn btn-outline-secondary">
+            Ver pedidos realizados
+        </a>
+    </div>
+
+    <!-- Formulario para seleccionar mesa y cliente -->
     <form method="get" action="" class="mb-4">
         <label for="mesa_id">Selecciona la mesa:</label>
         <select name="mesa_id" id="mesa_id" required onchange="this.form.submit()">
@@ -12,6 +19,16 @@
             {% for mesa in mesas %}
                 <option value="{{ mesa.id }}" {% if mesa.id|stringformat:"s" == mesa_id|stringformat:"s" %}selected{% endif %}>
                     Mesa {{ mesa.codigo }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <label for="cliente_id" class="ms-3">Selecciona cliente:</label>
+        <select name="cliente_id" id="cliente_id" onchange="this.form.submit()">
+            <option value="ninguno" {% if not cliente_id %}selected{% endif %}>No tiene cuenta</option>
+            {% for cliente in clientes %}
+                <option value="{{ cliente.id }}" {% if cliente.id|stringformat:"s" == cliente_id|stringformat:"s" %}selected{% endif %}>
+                    {{ cliente.nombre }}
                 </option>
             {% endfor %}
         </select>
@@ -32,6 +49,7 @@
                     <form method="post" action="{% url 'agregar_al_carrito' producto.id %}">
                       {% csrf_token %}
                       <input type="hidden" name="mesa_id" value="{{ mesa_id }}">
+                      <input type="hidden" name="cliente_id" value="{{ cliente_id }}">
                       <button type="submit" class="btn btn-primary">Añadir al carrito</button>
                     </form>
                 </div>
@@ -94,6 +112,7 @@
     <form method="post" action="{% url 'enviar_pedido' %}">
         {% csrf_token %}
         <input type="hidden" name="mesa_id" value="{{ mesa_id }}">
+        <input type="hidden" name="cliente_id" value="{{ cliente_id }}">
         <button type="submit" class="btn btn-success">Procesar Pedido</button>
     </form>
     {% else %}
@@ -101,5 +120,7 @@
     {% endif %}
 </div>
 {% endblock %}
+
+
 
 

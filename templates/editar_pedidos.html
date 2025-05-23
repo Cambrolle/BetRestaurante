@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Pedidos Realizados</h2>
+    <a href="{% url 'vista_carta_camarero' %}" class="btn btn-outline-secondary mb-4">
+        ← Volver a la carta
+    </a>
+    {% if pedidos %}
+    <form method="post" action="{% url 'editar_pedidos_realizados' %}">
+        {% csrf_token %}
+        {% for pedido in pedidos %}
+        <div class="card mb-4">
+            <div class="card-header">
+                Pedido {{ pedido.id }} - Mesa {{ pedido.mesa.codigo }} ({{ pedido.get_estado_display }})
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in pedido.items.all %}
+                        <tr>
+                            <td>{{ item.producto.producto }}</td>
+                            <td>
+                                <input type="number" name="cantidad_{{ item.id }}" value="{{ item.cantidad }}" min="1">
+                            </td>
+                            <td>
+                                <input type="checkbox" name="eliminar_{{ item.id }}"> Eliminar
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        <!-- Nuevo producto -->
+                        <tr>
+                            <td colspan="3">
+                                <select name="nuevo_producto_{{ pedido.id }}">
+                                    <option value="">-- Añadir producto --</option>
+                                    {% for producto in productos %}
+                                        <option value="{{ producto.id }}">{{ producto.producto }}</option>
+                                    {% endfor %}
+                                </select>
+                                <input type="number" name="nuevo_cantidad_{{ pedido.id }}" placeholder="Cantidad" min="1">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+    </form>
+    {% else %}
+    <p>No hay pedidos realizados aún.</p>
+    {% endif %}
+</div>
+{% endblock %}

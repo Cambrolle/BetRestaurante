@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Historial de Todos los Pedidos</h2>
+    {% for pedido in pedidos %}
+    <div class="card mb-4">
+        <div class="card-header">
+            Pedido {{ pedido.id }} - Mesa {{ pedido.mesa.codigo }}
+        </div>
+        <div class="card-body">
+            <p><strong>Estado:</strong> {{ pedido.estado }}</p>
+            <p><strong>Fecha:</strong> {{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</p>
+            <ul>
+                {% for item in pedido.items.all %}
+                <li>{{ item.producto.producto }} x{{ item.cantidad }}</li>
+                {% empty %}
+                <li>Sin productos</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% empty %}
+    <p>No hay pedidos registrados.</p>
+    {% endfor %}
+</div>
+{% endblock %}
+
+
