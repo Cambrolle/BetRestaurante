@@ -11,7 +11,6 @@ urlpatterns = [
     path('cerrar_sesion/', views.logout_usuario, name="logout"),
     path('pagina_gestion/', views.gestion_page, name="gestionar"),
     path('pagina_camarero/', views.camarero_page, name="camarero_page"),
-    path('pagina_carta/', views.carta_page, name="carta"),
     path('admin/', views.administrador_page, name="admin_page"),
     path('mesas/cambiar_estado/<int:mesa_id>/', views.cambiar_estado_mesa, name="cambiar_estado_mesa"),
     path('mesas/', views.mesas_page, name="mesas"),
@@ -34,7 +33,16 @@ urlpatterns = [
     path('cocinero/', views.cocinero_page, name="cocinero"),
     path('pedidos/', views.vista_pedidos_cocinero, name="pedidos"),
     path('pedidos/marcar_preparado/<int:pedido_id>/', views.marcar_pedido_preparado, name='marcar_pedido_preparado'),
+    path('admin/mesas/', views.mesas_admin, name='mesas_admin'),
+    path('admin/mesas/agregar/', views.agregar_mesa, name='agregar_mesa'),
+    path('admin/mesas/eliminar/<int:mesa_id>/', views.eliminar_mesa, name='eliminar_mesa'),
+    path('camarero/pedidos/', views.ver_pedidos_realizados, name='ver_pedidos_realizados'),
+    path('camarero/editar-pedidos/', views.editar_pedidos_realizados, name='editar_pedidos_realizados'),
+    path('historial/', views.historial_pedidos_cliente, name='historial_pedidos'),
+    path('admin/pedidos/', views.vista_pedidos_admin, name='pedidos_admin'),
+
 ]
+
 
 
 
